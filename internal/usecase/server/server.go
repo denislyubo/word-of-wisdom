@@ -13,6 +13,7 @@ import (
 	schema "github.com/denislyubo/word-of-wisdom"
 	"github.com/denislyubo/word-of-wisdom/internal/config"
 	"github.com/denislyubo/word-of-wisdom/internal/service/pow"
+	"github.com/denislyubo/word-of-wisdom/internal/service/quote"
 	"github.com/denislyubo/word-of-wisdom/internal/utils"
 )
 
@@ -20,11 +21,13 @@ type server struct {
 	config   *config.ServerConfig
 	listener net.Listener
 	pow      schema.Power
+	quote    schema.Quoter
 }
 
 func New(config *config.ServerConfig) *server {
-	pow := pow.New(config.Difficulty)
-	return &server{config: config, pow: pow}
+	p := pow.New(config.Difficulty)
+	q := quote.New()
+	return &server{config: config, pow: p, quote: q}
 }
 
 func (s *server) ListenAndServe(ctx context.Context) (err error) {
@@ -58,7 +61,7 @@ func (s *server) ListenAndServe(ctx context.Context) (err error) {
 }
 
 func (s *server) handler(conn net.Conn) error {
-	puzzle := "Puzzle"
+	puzzle := "Puzzle" + time.Now().String()
 	defer func() {
 		conn.Close()
 		log.Println("Server: ", "connection closed")
@@ -107,7 +110,11 @@ func (s *server) handler(conn net.Conn) error {
 	}
 
 	log.Println("Server: ", "Success")
-	_, err = utils.Write(conn, "Quote: la-la-la\n")
+	q, err := s.quote.GetQuote()
+	if err != nil {
+		log.Println("Server: ", "Get Quote Error: ", err.Error())
+	}
+	_, err = utils.Write(conn, q)
 	if err != nil {
 		return err
 	}
