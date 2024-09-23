@@ -1,20 +1,35 @@
 package pow
 
-import "testing"
+import (
+	"context"
+	"testing"
+	"time"
+)
 
 func TestCalculate(t *testing.T) {
-	p := New(10000)
+	ctx := context.Background()
 
-	a, b, err := p.Calculate(1814503) //1297 1399
-	if err != nil {
-		t.Error(err)
+	p := New(6)
+
+	data := "Hello, world!"
+	nonce := p.Calculate(ctx, data)
+
+	res := p.Check(data, nonce)
+	if !res {
+		t.Error("check error")
 	}
+}
 
-	if a != 1297 {
-		t.Errorf("a != 1297: %d", a)
-	}
+func TestCalculateTimeout(t *testing.T) {
+	ctx, _ := context.WithDeadline(context.Background(), time.Now().Add(time.Second*2))
 
-	if b != 7 {
-		t.Errorf("b != 1399: %d", b)
+	p := New(6)
+
+	data := "Hello, world!"
+	nonce := p.Calculate(ctx, data)
+
+	res := p.Check(data, nonce)
+	if res {
+		t.Error("check error")
 	}
 }

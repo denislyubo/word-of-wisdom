@@ -1,22 +1,27 @@
 package client
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
 	"net"
 	"strings"
 
+	schema "github.com/denislyubo/word-of-wisdom"
 	"github.com/denislyubo/word-of-wisdom/internal/config"
+	"github.com/denislyubo/word-of-wisdom/internal/service/pow"
 	"github.com/denislyubo/word-of-wisdom/internal/utils"
 )
 
 type client struct {
 	config *config.ClientConfig
+	pow    schema.Power
 }
 
 func New(config *config.ClientConfig) *client {
-	return &client{config: config}
+	pow := pow.New(config.Difficulty)
+	return &client{config: config, pow: pow}
 }
 
 func (c *client) GetQuote() (*string, error) {
@@ -58,8 +63,10 @@ func (c *client) GetQuote() (*string, error) {
 		return nil, errors.New("unexpected message from server")
 	}
 
-	_, err = utils.Write(conn, "3:7\n")
-	log.Println("Client: ", "3:7")
+	nonce := c.pow.Calculate(context.TODO(), strs[1])
+
+	_, err = utils.Write(conn, fmt.Sprintf("nonce:%d\n", nonce))
+	log.Println("Client: ", "sent nonce: ", nonce)
 	if err != nil {
 		log.Println("Client: ", "Write Error: ", err.Error())
 		return nil, err

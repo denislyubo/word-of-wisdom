@@ -6,20 +6,25 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strconv"
 	"strings"
 	"time"
 
+	schema "github.com/denislyubo/word-of-wisdom"
 	"github.com/denislyubo/word-of-wisdom/internal/config"
+	"github.com/denislyubo/word-of-wisdom/internal/service/pow"
 	"github.com/denislyubo/word-of-wisdom/internal/utils"
 )
 
 type server struct {
 	config   *config.ServerConfig
 	listener net.Listener
+	pow      schema.Power
 }
 
 func New(config *config.ServerConfig) *server {
-	return &server{config: config}
+	pow := pow.New(config.Difficulty)
+	return &server{config: config, pow: pow}
 }
 
 func (s *server) ListenAndServe(ctx context.Context) (err error) {
@@ -53,6 +58,7 @@ func (s *server) ListenAndServe(ctx context.Context) (err error) {
 }
 
 func (s *server) handler(conn net.Conn) error {
+	puzzle := "Puzzle"
 	defer func() {
 		conn.Close()
 		log.Println("Server: ", "connection closed")
@@ -65,8 +71,9 @@ func (s *server) handler(conn net.Conn) error {
 	}
 	log.Println("Server: ", "message from client: ", msg)
 
-	_, err = utils.Write(conn, "Hello, solve puzzle: 21\n")
-	log.Println("Server: ", "message to client: ", "Hello, solve puzzle: 21")
+	msg = fmt.Sprintf("Hello, solve puzzle: %s\n", puzzle)
+	_, err = utils.Write(conn, msg)
+	log.Println("Server: ", "message to client: ", msg)
 	if err != nil {
 		log.Println("Client: ", "Write Error: ", err.Error())
 		return err
@@ -83,8 +90,19 @@ func (s *server) handler(conn net.Conn) error {
 		return errors.New("unexpected message from client")
 	}
 
-	if strs[0] != "3" || strs[1] != "7" {
+	if strs[0] != "nonce" {
 		log.Println("Server: ", "Wrong puzzle answer: ")
+		return errors.New("wrong puzzle answer")
+	}
+
+	nonce, err := strconv.ParseUint(strs[1], 10, 64)
+	if err != nil {
+		log.Println("Server: ", "Wrong puzzle answer: ")
+		return errors.New("wrong puzzle answer")
+	}
+
+	if !s.pow.Check(puzzle, nonce) {
+		log.Println("Server: ", "Wrong puzzle answer")
 		return errors.New("wrong puzzle answer")
 	}
 
