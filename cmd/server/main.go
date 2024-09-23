@@ -19,12 +19,12 @@ func main() {
 	}()
 
 	var cfg config.ServerConfig
-	c, err := config.Load(cfg)
+	err := config.Load(&cfg)
 	if err != nil {
 		log.Fatal("Server: ", "failed to load config: ", err.Error())
 	}
 
-	if err := server.New(c).ListenAndServe(ctx); err != nil {
+	if err := server.New(&cfg).ListenAndServe(ctx); err != nil {
 		log.Println("Server: ", err)
 	}
 }
