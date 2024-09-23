@@ -7,6 +7,11 @@ import (
 	"net"
 )
 
+const (
+	DELIMITER byte = '\n'
+	QUIT_SIGN      = "quit!"
+)
+
 func Read(conn net.Conn, delim byte) (string, error) {
 	reader := bufio.NewReader(conn)
 	var buffer bytes.Buffer

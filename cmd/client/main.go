@@ -21,5 +21,5 @@ func main() {
 		return
 	}
 
-	fmt.Println("Client: ", "message from server: ", quote)
+	fmt.Println("Client: ", "message from server: ", *quote)
 }

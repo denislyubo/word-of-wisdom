@@ -9,6 +9,7 @@ import (
 type ServerConfig struct {
 	ServerPort      uint          `env:"SERVER_PORT" env-default:"8080"`
 	ServerKeepAlive time.Duration `env:"SERVER_KEEP_ALIVE" env-default:"15s"`
+	ServerDeadline  time.Duration `env:"SERVER_DEADLINE" env-default:"10s"`
 	ClientRps       uint64        `env:"CLIENT_RPS" env-default:"10"`
 }
 
