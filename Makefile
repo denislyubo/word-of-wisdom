@@ -8,4 +8,4 @@ start-client:
 
 .PHONY: run-app
 run-app:
-	docker compose up -d
+	docker compose up
