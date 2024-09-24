@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/rand"
 	"net"
 	"strconv"
 	"strings"
@@ -61,7 +62,7 @@ func (s *server) ListenAndServe(ctx context.Context) (err error) {
 }
 
 func (s *server) handler(conn net.Conn) error {
-	puzzle := "Puzzle" + time.Now().String()
+	puzzle := "Puzzle" + string(rand.Intn(100))
 	defer func() {
 		conn.Close()
 		log.Println("Server: ", "connection closed")

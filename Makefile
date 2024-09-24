@@ -5,3 +5,7 @@ start-server:
 .PHONY: start-client
 start-client:
 	go run -v ./cmd/client/
+
+.PHONY: run-app
+run-app:
+	docker compose up -d

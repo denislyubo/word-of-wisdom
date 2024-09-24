@@ -18,11 +18,13 @@ func main() {
 		log.Fatal("Client: ", "failed to load config: ", err.Error())
 	}
 
+	client := client.New(&cfg)
+
 	var i uint64
-	for i = 0; i < cfg.ClientRps; i++ {
+	for i = 0; i < cfg.ClientRequests; i++ {
 		wg.Add(1)
 		go func(i uint64) {
-			quote, err := client.New(&cfg).GetQuote()
+			quote, err := client.GetQuote()
 			if err != nil {
 				log.Fatal("Client #", i, ": failed to get quote: ", err.Error())
 				return

@@ -14,10 +14,10 @@ type ServerConfig struct {
 }
 
 type ClientConfig struct {
-	ServerHost string `env:"SERVER_HOST" env-default:"localhost"`
-	ServerPort uint   `env:"SERVER_PORT" env-default:"8080"`
-	ClientRps  uint64 `env:"CLIENT_RPS" env-default:"10"`
-	Difficulty uint8  `env:"DIFFICULTY" env-default:"6"`
+	ServerHost     string `env:"SERVER_HOST" env-default:"localhost"`
+	ServerPort     uint   `env:"SERVER_PORT" env-default:"8080"`
+	ClientRequests uint64 `env:"CLIENT_REQUESTS" env-default:"10"`
+	Difficulty     uint8  `env:"DIFFICULTY" env-default:"6"`
 }
 
 func Load[C any](config *C) error {

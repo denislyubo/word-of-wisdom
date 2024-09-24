@@ -26,18 +26,16 @@ func New(config *config.ClientConfig) *client {
 
 func (c *client) GetQuote() (*string, error) {
 	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", c.config.ServerHost, c.config.ServerPort))
+	if err != nil {
+		log.Println("Client: ", "dial err:", err)
+		return nil, err
+	}
+
 	defer func() {
-		if err != nil {
-			log.Println("Client: ", "dial err:", err)
-		}
 		if err := conn.Close(); err != nil {
 			log.Println("Client: ", "close err:", err)
 		}
 	}()
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
 
 	_, err = utils.Write(conn, "Hello server\n")
 	log.Println("Client: ", "Hello server")
