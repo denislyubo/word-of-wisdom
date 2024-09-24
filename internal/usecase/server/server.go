@@ -43,7 +43,9 @@ func (s *server) ListenAndServe(ctx context.Context) (err error) {
 	go func() {
 		<-ctx.Done()
 		err := s.listener.Close()
-		log.Println("Server: ", "listener close error: ", err.Error())
+		if err != nil {
+			log.Println("Server: ", "listener close error: ", err.Error())
+		}
 	}()
 
 	for {
